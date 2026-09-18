@@ -1,0 +1,186 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#111"><style>
+*{box-sizing:border-box}body{margin:0;background:#f2f3f5;color:#151515;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}header{background:#111;color:#fff;padding:14px 16px;position:sticky;top:0;z-index:5}header b{font-size:18px}header small{display:block;color:#aaa}nav{display:flex;gap:7px;overflow:auto;background:#fff;padding:8px;position:sticky;top:63px;z-index:4}nav button,.teams button,.scheme button{border:0;border-radius:9px;padding:9px 12px;background:#eee;font-weight:700;white-space:nowrap}nav button.active,.teams button.active,.scheme button.active{background:#111;color:#fff}main{max-width:1000px;margin:auto;padding:12px}.screen{display:none}.screen.active{display:block}.hint,.summary,.bench{background:#fff;border-radius:10px;padding:11px;margin-bottom:10px;color:#555;font-size:13px}.teams,.scheme,.toolbar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}.teams button{flex:1}.scheme button{background:#fff;border:1px solid #ccc}.toolbar input{flex:1;min-width:180px;padding:10px;border:1px solid #ccc;border-radius:9px}.players{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}.player{background:#fff;border:1px solid #ddd;border-radius:10px;padding:10px;cursor:pointer}.player.selected{outline:3px solid #111}.player span{display:block;color:#666;font-size:12px;margin-top:4px}.count{font-size:12px;color:#666;margin:7px}.actions{display:flex;gap:8px}.actions button{padding:9px 12px;border:1px solid #ccc;border-radius:9px;background:#fff}@media(max-width:600px){.row{grid-template-columns:105px 1fr}.teams button{padding:8px 4px;font-size:12px}}
+\n
+/* Seletor direto pelo campo */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.62);display:none!important;align-items:center;justify-content:center;z-index:30;padding:16px}.modal.open{display:flex!important}.modal-card{width:min(620px,100%);max-height:82vh;overflow:auto;background:#fff;border-radius:16px;padding:14px;box-shadow:0 20px 60px rgba(0,0,0,.35)}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.modal-head b{font-size:17px}.modal-close{border:0;background:#eee;border-radius:9px;padding:8px 11px;font-weight:800}.modal-search{width:100%;padding:11px;border:1px solid #ccc;border-radius:10px;font-size:15px;margin-bottom:9px}.modal-note{font-size:12px;color:#666;margin-bottom:9px}.modal-list{display:grid;gap:7px}.modal-player{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px;border:1px solid #ddd;border-radius:10px;background:#fff;cursor:pointer}.modal-player b{font-size:14px}.modal-player span{display:block;color:#666;font-size:12px;margin-top:3px}.modal-player .choose{background:#111;color:#fff;border-radius:8px;padding:7px 9px;font-size:12px;font-weight:800;white-space:nowrap}@media(min-width:700px){.modal{align-items:center}}
+
+/* Campo tático */
+.pitch-wrap{width:100%;max-width:100%;background:#111;border-radius:14px;padding:10px;margin:12px 0;box-shadow:0 5px 18px rgba(0,0,0,.12)}
+.pitch-head{display:flex;justify-content:space-between;align-items:center;color:#fff;padding:4px 4px 9px;font-size:13px;font-weight:800}
+.pitch{position:relative;aspect-ratio:1.35/1;border-radius:12px;overflow:hidden;background:repeating-linear-gradient(0deg,#217a35 0,#217a35 10%,#1d7131 10%,#1d7131 20%);border:2px solid rgba(255,255,255,.7);min-height:0;width:100%;max-width:100%;}
+.pitch:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.04),transparent 30%,rgba(255,255,255,.04) 60%,transparent);pointer-events:none}
+.pitch-line,.pitch-box,.pitch-circle,.pitch-dot{position:absolute;border-color:rgba(255,255,255,.78);pointer-events:none}
+.pitch-line{left:0;right:0;top:50%;border-top:2px solid rgba(255,255,255,.75)}
+.pitch-circle{width:22%;aspect-ratio:1;left:39%;top:39%;border:2px solid rgba(255,255,255,.75);border-radius:50%}
+.pitch-dot{width:8px;height:8px;background:rgba(255,255,255,.8);border-radius:50%;left:calc(50% - 4px);top:calc(50% - 4px)}
+.pitch-box.top{width:32%;height:18%;left:34%;top:0;border:2px solid rgba(255,255,255,.75);border-top:0}
+.pitch-box.bottom{width:32%;height:18%;left:34%;bottom:0;border:2px solid rgba(255,255,255,.75);border-bottom:0}
+.pitch-box.smalltop{width:16%;height:8%;left:42%;top:0;border:2px solid rgba(255,255,255,.75);border-top:0}
+.pitch-box.smallbottom{width:16%;height:8%;left:42%;bottom:0;border:2px solid rgba(255,255,255,.75);border-bottom:0}
+.pnode{position:absolute;transform:translate(-50%,-50%);width:76px;text-align:center;color:#fff;z-index:2;cursor:pointer;transition:.15s}.pnode:hover{transform:translate(-50%,-50%) scale(1.06)}
+.pavatar{width:48px;height:48px;margin:auto;border-radius:50%;background:linear-gradient(145deg,#fff,#bfc3c7);border:3px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;color:#111;font-size:15px;font-weight:900;overflow:hidden}
+.pavatar img{width:100%;height:100%;object-fit:cover;display:block}.pname{margin-top:3px;background:rgba(0,0,0,.82);border-radius:6px;padding:3px 5px;font-size:10px;font-weight:800;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ppos{font-size:9px;opacity:.9;margin-top:1px;font-weight:700}
+.pitch-empty{opacity:.75}.pitch-empty .pavatar{border-style:dashed;background:rgba(255,255,255,.18);color:#fff}.pitch-empty .pname{background:rgba(0,0,0,.45);color:#eee}
+@media(max-width:600px){.modal{align-items:center;padding:12px}.modal-card{max-height:78vh;border-radius:16px}.pitch{min-height:470px}.pnode{width:65px}.pavatar{width:40px;height:40px;font-size:12px}.pname{font-size:8px}.ppos{font-size:8px}}
+.roster-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border-radius:10px;padding:10px;margin-bottom:10px}.restore-btn{border:1px solid #111;border-radius:9px;background:#111;color:#fff;padding:10px 12px;font-weight:800}.roster-toolbar span{font-size:12px;color:#666}.roster-modal{position:fixed;inset:0;background:rgba(0,0,0,.62);display:none;align-items:flex-end;justify-content:center;z-index:40;padding:12px}.roster-modal.open{display:flex}.roster-card{width:min(620px,100%);max-height:85vh;overflow:auto;background:#fff;border-radius:16px;padding:16px}.roster-actions{display:grid;gap:8px;margin-top:12px}.roster-actions button{padding:12px;border:0;border-radius:10px;background:#111;color:#fff;font-weight:800}.roster-actions .danger{background:#b42318}.roster-option{padding:10px;border:1px solid #ddd;border-radius:9px;background:#fff;font-weight:700;text-align:left}.roster-note{font-size:12px;color:#666;margin-top:5px}@media(min-width:700px){.roster-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border-radius:10px;padding:10px;margin-bottom:10px}.restore-btn{border:1px solid #111;border-radius:9px;background:#111;color:#fff;padding:10px 12px;font-weight:800}.roster-toolbar span{font-size:12px;color:#666}.roster-modal{align-items:center}} 
+/* V18: escalação somente pelo campinho + modal. Nunca exibir listas legadas abaixo do campo. */
+.selection-list,.selection-note,.selection-panel,.player-selection-list,.slots{display:none!important;}
+
+/* V18: nenhum seletor/lista permanente abaixo do campinho. O seletor existe somente dentro do modal e some ao escolher o jogador. */
+.selection-list,.selection-note,.selection-panel,.player-selection-list,.slots,#selectionList,#selectionPanel,#playerSelectionList{display:none!important;visibility:hidden!important;height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;}
+</style><title>Você Escala — Importador oGol</title><style>.modal-section-title{font-size:11px;font-weight:900;letter-spacing:.5px;color:#555;padding:12px 4px 7px;border-bottom:1px solid #ddd;margin-top:4px}.improvisation-title{margin-top:14px;color:#111}</style></head><body><header><b>⚽ Você Escala</b><small id="teamHeader">Importe o elenco de qualquer time do oGol</small></header><nav id="mainNav" style="display:none"><button class="active" data-s="escala">Escalação</button><button data-s="elenco">Elenco</button></nav><main><section id="import" class="screen active"><div class="hint">Escolha o time e o esquema. Depois toque diretamente em uma posição vazia no campo para escolher o jogador. A categoria do oGol continua sendo a referência; você define a função tática. Um jogador escalado fica indisponível nos outros times.</div><div class="teams"><button data-t="1" class="active">Time 1</button><button data-t="2">Time 2</button><button data-t="3">Time 3</button></div><div class="scheme"><button data-s="4-3-3" class="active">4-3-3</button><button data-s="4-2-3-1">4-2-3-1</button><button data-s="4-4-1-1">4-4-1-1</button><button data-s="4-1-4-1">4-1-4-1</button><button data-s="4-1-2-1-2">4-1-2-1-2</button><button data-s="4-3-1-2">4-3-1-2</button><button data-s="4-2-2-2">4-2-2-2</button><button data-s="5-3-2">5-3-2</button><button data-s="5-4-1">5-4-1</button><button data-s="3-4-1-2">3-4-1-2</button><button data-s="4-4-2">4-4-2</button><button data-s="3-5-2">3-5-2</button><button data-s="3-4-3">3-4-3</button></div><div class="pitch-wrap"><div class="pitch-head"><span>VISÃO DO CAMPO</span><span id="pitchTitle">Time 1 • 4-3-3</span></div><div id="pitch" class="pitch"><div class="pitch-line"></div><div class="pitch-circle"></div><div class="pitch-dot"></div><div class="pitch-box top"></div><div class="pitch-box bottom"></div><div class="pitch-box smalltop"></div><div class="pitch-box smallbottom"></div></div></div><div id="playerModal" class="modal"><div class="modal-card"><div class="modal-head"><div><b id="modalTitle">Escolher jogador</b><div id="modalSub" class="modal-note"></div></div><button id="modalClose" class="modal-close">Fechar</button></div><input id="modalSearch" class="modal-search" placeholder="🔎 Pesquisar jogador"><div id="modalList" class="modal-list"></div></div></div><div class="actions"><button id="save">Salvar</button><button id="clear">Limpar</button></div></section><section id="escala" class="screen"><div class="hint">Escolha o time e o esquema. Depois toque diretamente em uma posição vazia no campo para escolher o jogador. A categoria do oGol continua sendo a referência; você define a função tática. Um jogador escalado fica indisponível nos outros times.</div><div class="teams"><button data-t="1" class="active">Time 1</button><button data-t="2">Time 2</button><button data-t="3">Time 3</button></div><div class="scheme"><button data-s="4-3-3" class="active">4-3-3</button><button data-s="4-2-3-1">4-2-3-1</button><button data-s="4-4-1-1">4-4-1-1</button><button data-s="4-1-4-1">4-1-4-1</button><button data-s="4-1-2-1-2">4-1-2-1-2</button><button data-s="4-3-1-2">4-3-1-2</button><button data-s="4-2-2-2">4-2-2-2</button><button data-s="5-3-2">5-3-2</button><button data-s="5-4-1">5-4-1</button><button data-s="3-4-1-2">3-4-1-2</button><button data-s="4-4-2">4-4-2</button><button data-s="3-5-2">3-5-2</button><button data-s="3-4-3">3-4-3</button></div><div class="pitch-wrap"><div class="pitch-head"><span>VISÃO DO CAMPO</span><span id="pitchTitle">Time 1 • 4-3-3</span></div><div id="pitch" class="pitch"><div class="pitch-line"></div><div class="pitch-circle"></div><div class="pitch-dot"></div><div class="pitch-box top"></div><div class="pitch-box bottom"></div><div class="pitch-box smalltop"></div><div class="pitch-box smallbottom"></div></div></div><div id="playerModal" class="modal"><div class="modal-card"><div class="modal-head"><div><b id="modalTitle">Escolher jogador</b><div id="modalSub" class="modal-note"></div></div><button id="modalClose" class="modal-close">Fechar</button></div><input id="modalSearch" class="modal-search" placeholder="🔎 Pesquisar jogador"><div id="modalList" class="modal-list"></div></div></div><div class="actions"><button id="save">Salvar</button><button id="clear">Limpar</button></div></section><section id="elenco" class="screen"><div id="rosterModal" class="roster-modal"><div class="roster-card"><div class="modal-head"><div><b id="rosterTitle">Jogador</b><div id="rosterSub" class="modal-note"></div></div><button id="rosterClose" class="modal-close">Fechar</button></div><div id="rosterOptions" class="roster-actions"></div></div></div><div class="hint">Elenco completo do oGol. Toque em um jogador para abrir o gerenciamento do elenco. A escalação é feita exclusivamente pelo campinho na seção Escalação.</div><div class="roster-toolbar"><button id="restoreRoster" class="restore-btn">↩ Restaurar elenco original do oGol</button><span>Restaura todos os jogadores excluídos.</span></div><div id="all" class="players"></div></section></main><script>
+const players=[{"name":"Raul","group":"Goleiro","age":29,"value":"400 mil €","shirt":1,"position":"GOL","positions":["GOL"]},{"name":"Neto","group":"Goleiro","age":37,"value":"950 mil €","shirt":22,"position":"GOL","positions":["GOL"]},{"name":"Leo Linck","group":"Goleiro","age":25,"value":"2.50 M €","shirt":24,"position":"GOL","positions":["GOL"]},{"name":"Ythallo","group":"Defensor","age":22,"value":"","shirt":3,"position":"ZAG","positions":["ZAG"]},{"name":"Bastos","group":"Defensor","age":35,"value":"600 mil €","shirt":15,"position":"ZAG","positions":["ZAG"]},{"name":"Alexander Barboza","group":"Defensor","age":31,"value":"5.00 M €","shirt":20,"position":"ZAG","positions":["ZAG"]},{"name":"Caio Roque","group":"Defensor","age":24,"value":"","shirt":27,"position":"ZAG","positions":["ZAG"]},{"name":"Gabriel Batista","group":"Goleiro","age":28,"value":"4.00 M €","shirt":12,"position":"GOL","positions":["GOL"]},{"name":"Warleson","group":"Goleiro","age":30,"value":"950 mil €","shirt":17,"position":"GOL","positions":["GOL"]},{"name":"Rhyan Luca","group":"Goleiro","age":20,"value":"","shirt":32,"position":"GOL","positions":["GOL"]},{"name":"Cléber Lucas","group":"Goleiro","age":19,"value":"","shirt":62,"position":"GOL","positions":["GOL"]},{"name":"Cristhian Loor","group":"Goleiro","age":20,"value":"","shirt":40,"position":"GOL","positions":["GOL"]},{"name":"Rogério","group":"Defensor","age":18,"value":"","shirt":null,"position":"ZAG","positions":["ZAG"]},{"name":"Vitinho","group":"Defensor","age":27,"value":"9.50 M €","shirt":2,"position":"LD","positions":["LD","PD"]},{"name":"Mateo Ponte","group":"Defensor","age":23,"value":"2.00 M €","shirt":4,"position":"LD","positions":["LD"]},{"name":"Kadu Santos","group":"Defensor","age":21,"value":"350 mil €","shirt":42,"position":"LD","positions":["LD"]},{"name":"Nahuel Ferraresi","group":"Defensor","age":27,"value":"4.50 M €","shirt":5,"position":"ZAG","positions":["ZAG"]},{"name":"Anthony","group":"Defensor","age":21,"value":"","shirt":26,"position":"LD","positions":["LD","PD"]},{"name":"Kaio Pantaleão","group":"Defensor","age":30,"value":"1.70 M €","shirt":31,"position":"ZAG","positions":["ZAG"]},{"name":"Gabriel Justino","group":"Defensor","age":20,"value":"","shirt":34,"position":"ZAG","positions":["ZAG"]},{"name":"Riquelme","group":"Defensor","age":19,"value":"","shirt":44,"position":"ZAG","positions":["ZAG"]},{"name":"Herick","group":"Defensor","age":17,"value":"","shirt":63,"position":"ZAG","positions":["ZAG"]},{"name":"Lira","group":"Defensor","age":18,"value":"","shirt":null,"position":"ZAG","positions":["ZAG"]},{"name":"Alex Telles","group":"Defensor","age":33,"value":"3.00 M €","shirt":13,"position":"LE","positions":["LE"]},{"name":"Marçal","group":"Defensor","age":37,"value":"200 mil €","shirt":21,"position":"LE","positions":["LE"]},{"name":"Paulinho","group":"Defensor","age":31,"value":"400 mil €","shirt":29,"position":"LE","positions":["LE"]},{"name":"Gabriel Abdias","group":"Defensor","age":20,"value":"","shirt":36,"position":"ZAG","positions":["ZAG"]},{"name":"Jhoan Hernández","group":"Defensor","age":20,"value":"","shirt":67,"position":"LE","positions":["LE"]},{"name":"Danillo Oliveira","group":"Defensor","age":19,"value":"","shirt":43,"position":"ZAG","positions":["ZAG"]},{"name":"Kauã Branco","group":"Defensor","age":20,"value":"","shirt":53,"position":"ZAG","positions":["ZAG"]},{"name":"Cristian Medina","group":"Meia","age":24,"value":"9.50 M €","shirt":6,"position":"MC","positions":["MC","MEI"]},{"name":"Danilo","group":"Meia","age":25,"value":"31.00 M €","shirt":8,"position":"VOL","positions":["VOL","MC"]},{"name":"Allan","group":"Meia","age":35,"value":"950 mil €","shirt":25,"position":"VOL","positions":["VOL"]},{"name":"Victor Hugo","group":"Meia","age":17,"value":"","shirt":38,"position":"MC","positions":["MC"]},{"name":"Arthur Novaes","group":"Meia","age":17,"value":"","shirt":48,"position":"MC","positions":["MC"]},{"name":"Wallace Davi","group":"Meia","age":19,"value":"","shirt":55,"position":"MC","positions":["MC"]},{"name":"Marquinhos","group":"Meia","age":19,"value":"","shirt":64,"position":"MC","positions":["MC"]},{"name":"Huguinho","group":"Meia","age":19,"value":"300 mil €","shirt":75,"position":"MEI","positions":["MEI"]},{"name":"Bernardo Valim","group":"Meia","age":20,"value":"","shirt":80,"position":"MC","positions":["MC"]},{"name":"Edenílson","group":"Meia","age":36,"value":"250 mil €","shirt":88,"position":"MC","positions":["MC"]},{"name":"Pedro Martins","group":"Meia","age":17,"value":"","shirt":null,"position":"MC","positions":["MC"]},{"name":"Álvaro Montoro","group":"Meia","age":19,"value":"10.00 M €","shirt":10,"position":"MEI","positions":["MEI","MC"]},{"name":"Jordan Barrera","group":"Meia","age":20,"value":"","shirt":14,"position":"MEI","positions":["MEI"]},{"name":"Caio Valle","group":"Meia","age":18,"value":"","shirt":45,"position":"MC","positions":["MC"]},{"name":"Miguel Caldas","group":"Meia","age":18,"value":"","shirt":47,"position":"MC","positions":["MC"]},{"name":"Matheusinho","group":"Meia","age":19,"value":"","shirt":57,"position":"MEI","positions":["MEI"]},{"name":"Davi Nery","group":"Meia","age":18,"value":"","shirt":68,"position":"MC","positions":["MC"]},{"name":"Newton","group":"Meia","age":26,"value":"","shirt":28,"position":"VOL","positions":["VOL","MC"]},{"name":"Lucas Camilo","group":"Meia","age":20,"value":"","shirt":78,"position":"MC","positions":["MC"]},{"name":"Santiago Rodríguez","group":"Meia","age":26,"value":"5.50 M €","shirt":23,"position":"MEI","positions":["MEI","MC"]},{"name":"Júnior Santos","group":"Atacante","age":31,"value":"3.00 M €","shirt":7,"position":"PD","positions":["PD","CA"]},{"name":"Hakim Ziyech","group":"Atacante","age":33,"value":"2.50 M €","shirt":22,"position":"MEI","positions":["MEI","PE"]},{"name":"Felipe Januário","group":"Atacante","age":19,"value":"","shirt":49,"position":"PE","positions":["PE","PD"]},{"name":"Lucas Villalba","group":"Atacante","age":25,"value":"1.40 M €","shirt":77,"position":"PE","positions":["PE","PD"]},{"name":"Arthur Cabral","group":"Atacante","age":28,"value":"9.50 M €","shirt":19,"position":"CA","positions":["CA"]},{"name":"Kadir Barría","group":"Atacante","age":19,"value":"","shirt":37,"position":"PE","positions":["PE"]},{"name":"Arthur Izaque","group":"Atacante","age":19,"value":"3.50 M €","shirt":39,"position":"CA","positions":["CA"]},{"name":"Lucas Emanuel","group":"Atacante","age":17,"value":"","shirt":79,"position":"PE","positions":["PE"]},{"name":"Matheus Martins","group":"Atacante","age":23,"value":"6.00 M €","shirt":11,"position":"PE","positions":["PE","PD"]},{"name":"Kauan Toledo","group":"Atacante","age":20,"value":"","shirt":59,"position":"PD","positions":["PD"]},{"name":"Fortunato","group":"Atacante","age":20,"value":"","shirt":null,"position":"PE","positions":["PE"]},{"name":"Artur","group":"Atacante","age":28,"value":"8.50 M €","shirt":7,"position":"PD","positions":["PD","PE"]},{"name":"Nathan Fernandes","group":"Atacante","age":21,"value":"4.00 M €","shirt":16,"position":"PE","positions":["PE","PD"]},{"name":"Chris Ramos","group":"Atacante","age":29,"value":"2.50 M €","shirt":9,"position":"CA","positions":["CA"]},{"name":"Samuel Alves","group":"Atacante","age":18,"value":"","shirt":69,"position":"PE","positions":["PE"]},{"name":"Arthur Chaves","group":"Defensor","age":25,"value":"5.00 M €","shirt":null,"position":"ZAG","positions":["ZAG"]},{"name":"Lucas Monzón","group":"Defensor","age":24,"value":"550 mil €","shirt":33,"position":"ZAG","positions":["ZAG"]},{"name":"Domingos Andrade","group":"Meia","age":24,"value":"","shirt":null,"position":"VOL","positions":["VOL","MC"]},{"name":"Danilo Pereira","group":"Atacante","age":27,"value":"1.40 M €","shirt":90,"position":"CA","positions":["CA"]},{"name":"Tiquinho Soares","group":"Atacante","age":35,"value":"800 mil €","shirt":9,"position":"CA","positions":["CA"]},{"name":"Joaquín Correa","group":"Atacante","age":32,"value":"1.50 M €","shirt":30,"position":"CA","positions":["CA"]}];
+const schemes={
+"4-3-3":[["GOL","Goleiro"],["LD","Lateral-direito"],["ZAG1","Zagueiro"],["ZAG2","Zagueiro"],["LE","Lateral-esquerdo"],["VOL","Volante"],["MC","Meio-campista"],["MEI","Meia-atacante"],["PD","Ponta-direita"],["CA","Centroavante"],["PE","Ponta-esquerda"]],
+"4-2-3-1":[["GOL","Goleiro"],["LD","Lateral-direito"],["ZAG1","Zagueiro"],["ZAG2","Zagueiro"],["LE","Lateral-esquerdo"],["VOL1","Volante"],["VOL2","Volante"],["PD","Ponta-direita"],["MEI","Meia-atacante"],["PE","Ponta-esquerda"],["CA","Centroavante"]],
+"4-4-2":[["GOL","Goleiro"],["LD","Lateral-direito"],["ZAG1","Zagueiro"],["ZAG2","Zagueiro"],["LE","Lateral-esquerdo"],["MC1","Meio-campista"],["MC2","Meio-campista"],["PD","Ponta-direita"],["PE","Ponta-esquerda"],["CA1","Centroavante"],["CA2","Centroavante"]],
+"4-4-1-1":[["GOL","Goleiro"],["LD","Lateral-direito"],["ZAG1","Zagueiro"],["ZAG2","Zagueiro"],["LE","Lateral-esquerdo"],["MC1","Meio-campista"],["MC2","Meio-campista"],["PD","Ponta-direita"],["PE","Ponta-esquerda"],["MEI","Meia-atacante"],["CA","Centroavante"]],
+"4-1-4-1":[["GOL","Goleiro"],["LD","Lateral-direito"],["ZAG1","Zagueiro"],["ZAG2","Zagueiro"],["LE","Lateral-esquerdo"],["VOL","Volante"],["PD","Ponta-direita"],["MC1","Meio-campista"],["MC2","Meio-campista"],["PE","Ponta-esquerda"],["CA","Centroavante"]],
+"4-1-2-1-2":[["GOL","Goleiro"],["LD","Lateral-direito"],["ZAG1","Zagueiro"],["ZAG2","Zagueiro"],["LE","Lateral-esquerdo"],["VOL","Volante"],["MC1","Meio-campista"],["MC2","Meio-campista"],["MEI","Meia-atacante"],["CA1","Centroavante"],["CA2","Centroavante"]],
+"4-3-1-2":[["GOL","Goleiro"],["LD","Lateral-direito"],["ZAG1","Zagueiro"],["ZAG2","Zagueiro"],["LE","Lateral-esquerdo"],["VOL","Volante"],["MC1","Meio-campista"],["MC2","Meio-campista"],["MEI","Meia-atacante"],["CA1","Centroavante"],["CA2","Centroavante"]],
+"4-2-2-2":[["GOL","Goleiro"],["LD","Lateral-direito"],["ZAG1","Zagueiro"],["ZAG2","Zagueiro"],["LE","Lateral-esquerdo"],["VOL1","Volante"],["VOL2","Volante"],["MEI1","Meia-atacante"],["MEI2","Meia-atacante"],["CA1","Centroavante"],["CA2","Centroavante"]],
+"5-3-2":[["GOL","Goleiro"],["ZAG1","Zagueiro"],["ZAG2","Zagueiro"],["ZAG3","Zagueiro"],["LD","Ala-direita"],["LE","Ala-esquerda"],["VOL","Volante"],["MC1","Meio-campista"],["MC2","Meio-campista"],["CA1","Centroavante"],["CA2","Centroavante"]],
+"5-4-1":[["GOL","Goleiro"],["ZAG1","Zagueiro"],["ZAG2","Zagueiro"],["ZAG3","Zagueiro"],["LD","Ala-direita"],["LE","Ala-esquerda"],["MC1","Meio-campista"],["MC2","Meio-campista"],["PD","Ponta-direita"],["PE","Ponta-esquerda"],["CA","Centroavante"]],
+"3-5-2":[["GOL","Goleiro"],["ZAG1","Zagueiro"],["ZAG2","Zagueiro"],["ZAG3","Zagueiro"],["LD","Ala-direita"],["LE","Ala-esquerda"],["VOL","Volante"],["MC","Meio-campista"],["MEI","Meia-atacante"],["CA1","Centroavante"],["CA2","Centroavante"]],
+"3-4-3":[["GOL","Goleiro"],["ZAG1","Zagueiro"],["ZAG2","Zagueiro"],["ZAG3","Zagueiro"],["LD","Ala-direita"],["LE","Ala-esquerda"],["MC1","Meio-campista"],["MC2","Meio-campista"],["PD","Ponta-direita"],["CA","Centroavante"],["PE","Ponta-esquerda"]],
+"3-4-1-2":[["GOL","Goleiro"],["ZAG1","Zagueiro"],["ZAG2","Zagueiro"],["ZAG3","Zagueiro"],["LD","Ala-direita"],["LE","Ala-esquerda"],["MC1","Meio-campista"],["MC2","Meio-campista"],["MEI","Meia-atacante"],["CA1","Centroavante"],["CA2","Centroavante"]]
+};
+const map={"Goleiro":"GOL","Lateral-direito":"LD","Lateral-esquerdo":"LE","Zagueiro":"ZAG","Volante":"VOL","Meio-campista":"MC","Meia-atacante":"MEI","Ponta-direita":"PD","Ponta-esquerda":"PE","Centroavante":"CA","Ala-direita":"LD","Ala-esquerda":"LE"};
+let state={team:1,scheme:{1:"4-3-3",2:"4-3-3",3:"4-3-3"},lineups:{1:{},2:{},3:{}},slot:null,excluded:[]};
+try{const x=localStorage.getItem("bota-escala");if(x)state=JSON.parse(x)}catch(e){};state.excluded=Array.isArray(state.excluded)?state.excluded:[];
+function normalizeState(){
+  const seen=new Set();
+  [1,2,3].forEach(t=>{if(!state.lineups[t])state.lineups[t]={};const clean={};Object.entries(state.lineups[t]).forEach(([slot,name])=>{if(name&&!seen.has(name)){clean[slot]=name;seen.add(name)}});state.lineups[t]=clean});
+}
+normalizeState();
+const $=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function save(){localStorage.setItem("bota-escala",JSON.stringify(state))}
+function slots(){return schemes[state.scheme[state.team]]}
+function groupForSlot(label){
+  if(label==="Goleiro") return "Goleiro";
+  if(["Lateral-direito","Lateral-esquerdo","Zagueiro","Ala-direita","Ala-esquerda"].includes(label)) return "Defensor";
+  if(["Volante","Meio-campista","Meia-atacante"].includes(label)) return "Meia";
+  if(["Ponta-direita","Ponta-esquerda","Centroavante"].includes(label)) return "Atacante";
+  return null;
+}
+function activePlayers(){return players.filter(p=>!state.excluded.includes(p.name))}
+function selectedPlayers(){
+  const used=new Set();
+  Object.values(state.lineups).forEach(lu=>Object.values(lu).forEach(n=>{if(n)used.add(n)}));
+  return used;
+}
+function ok(p,label){return p && p.group===groupForSlot(label)}
+function pickSlot(id){state.slot=id;openPlayerModal()}
+function eligiblePlayers(){
+  const label=slots().find(x=>x[0]===state.slot)?.[1]||'';
+  const q=($('modalSearch')?.value||'').toLowerCase().trim();
+  const used=selectedPlayers();
+  const available=activePlayers().filter(p=>!used.has(p.name)&&(!q||p.name.toLowerCase().includes(q)));
+  const primary=available.filter(p=>ok(p,label));
+  const improvisation=(label==='Goleiro')?[]:available.filter(p=>p.group==='Meia'||p.group==='Atacante');
+  return {primary,improvisation,label};
+}
+function openPlayerModal(){
+  if(!state.slot)return;
+  const label=slots().find(x=>x[0]===state.slot)[1];
+  $('modalTitle').textContent='Escolher jogador • '+label;
+  const lists=eligiblePlayers();
+  $('modalSub').textContent='Opções da posição: '+lists.primary.length+' • improvisações: '+lists.improvisation.length;
+  $('modalSearch').value='';
+  renderModalPlayers();
+  $('playerModal').classList.add('open');
+  setTimeout(()=>$('modalSearch').focus(),50);
+}
+function closePlayerModal(){state.slot=null;$('playerModal').classList.remove('open');$('modalList').innerHTML=''}
+function renderModalPlayers(){
+  const lists=eligiblePlayers();
+  const item=p=>`<div class="modal-player" data-n="${esc(p.name)}"><div><b>${esc(p.name)}</b><span>${esc(p.group)}${p.age?' • '+p.age+' anos':''}${p.value?' • '+p.value:''}</span></div><div class="choose">ESCALAR</div></div>`;
+  let html='';
+  if(lists.primary.length) html+=`<div class="modal-section-title">OPÇÕES PARA ${esc(lists.label.toUpperCase())}</div>`+lists.primary.map(item).join('');
+  else html+='<div class="modal-note">Nenhum jogador disponível para esta posição.</div>';
+  if(lists.improvisation.length){
+    html+=`<div class="modal-section-title improvisation-title">OUTRAS OPÇÕES DO ELENCO • IMPROVISAÇÃO</div>`;
+    html+='<div class="modal-note">Meias e atacantes disponíveis para improvisar nesta posição.</div>';
+    html+=lists.improvisation.map(item).join('');
+  }
+  $('modalList').innerHTML=html;
+  document.querySelectorAll('.modal-player').forEach(e=>e.onclick=()=>pickPlayer(e.dataset.n));
+}
+function pickPlayer(n){
+  if(!state.slot)return;
+  const label=slots().find(x=>x[0]===state.slot)[1],p=players.find(x=>x.name===n);
+  const lists=eligiblePlayers();
+  const allowed=lists.primary.some(x=>x.name===n)||lists.improvisation.some(x=>x.name===n);
+  if(!allowed){alert('Esse jogador não está disponível para esta posição.');return}
+  const lu=state.lineups[state.team];
+  // Um jogador só pode existir uma vez nos três times.
+  Object.keys(state.lineups).forEach(t=>Object.keys(state.lineups[t]).forEach(k=>{if(state.lineups[t][k]===n)delete state.lineups[t][k]}));
+  const targetSlot=state.slot;
+  lu[targetSlot]=n;
+  // Fecha imediatamente o seletor: depois de escolher o jogador, fica somente o campinho.
+  state.slot=null;
+  $('playerModal').classList.remove('open');
+  $('modalList').innerHTML='';
+  $('modalSearch').value='';
+  save();
+  render();
+}
+const extraFieldPos={
+"4-4-1-1":{GOL:[50,92],LD:[84,75],ZAG1:[62,76],ZAG2:[38,76],LE:[16,75],MC1:[62,56],MC2:[38,56],PD:[84,38],PE:[16,38],MEI:[50,27],CA:[50,14]},
+"4-1-4-1":{GOL:[50,92],LD:[84,75],ZAG1:[62,76],ZAG2:[38,76],LE:[16,75],VOL:[50,64],PD:[84,43],MC1:[61,45],MC2:[39,45],PE:[16,43],CA:[50,14]},
+"4-1-2-1-2":{GOL:[50,92],LD:[84,75],ZAG1:[62,76],ZAG2:[38,76],LE:[16,75],VOL:[50,64],MC1:[65,49],MC2:[35,49],MEI:[50,33],CA1:[60,15],CA2:[40,15]},
+"4-3-1-2":{GOL:[50,92],LD:[84,75],ZAG1:[62,76],ZAG2:[38,76],LE:[16,75],VOL:[50,62],MC1:[65,51],MC2:[35,51],MEI:[50,34],CA1:[60,15],CA2:[40,15]},
+"4-2-2-2":{GOL:[50,92],LD:[84,75],ZAG1:[62,76],ZAG2:[38,76],LE:[16,75],VOL1:[62,62],VOL2:[38,62],MEI1:[66,38],MEI2:[34,38],CA1:[60,15],CA2:[40,15]},
+"5-3-2":{GOL:[50,92],ZAG1:[72,76],ZAG2:[50,80],ZAG3:[28,76],LD:[88,57],LE:[12,57],VOL:[50,60],MC1:[65,46],MC2:[35,46],CA1:[60,17],CA2:[40,17]},
+"5-4-1":{GOL:[50,92],ZAG1:[72,76],ZAG2:[50,80],ZAG3:[28,76],LD:[88,57],LE:[12,57],MC1:[63,50],MC2:[37,50],PD:[82,30],PE:[18,30],CA:[50,14]},
+"3-4-1-2":{GOL:[50,92],ZAG1:[68,76],ZAG2:[50,80],ZAG3:[32,76],LD:[86,57],LE:[14,57],MC1:[63,51],MC2:[37,51],MEI:[50,34],CA1:[60,15],CA2:[40,15]}
+};
+const fieldPos={
+"4-3-3":{GOL:[50,92],LD:[84,75],ZAG1:[62,76],ZAG2:[38,76],LE:[16,75],VOL:[50,62],MC:[34,52],MEI:[66,52],PD:[84,28],CA:[50,18],PE:[16,28]},
+"4-2-3-1":{GOL:[50,92],LD:[84,75],ZAG1:[62,76],ZAG2:[38,76],LE:[16,75],VOL1:[60,62],VOL2:[40,62],PD:[84,40],MEI:[50,30],PE:[16,40],CA:[50,14]},
+"4-4-2":{GOL:[50,92],LD:[84,75],ZAG1:[62,76],ZAG2:[38,76],LE:[16,75],MC1:[62,55],MC2:[38,55],PD:[84,35],PE:[16,35],CA1:[58,17],CA2:[42,17]},
+"3-5-2":{GOL:[50,92],ZAG1:[70,76],ZAG2:[50,79],ZAG3:[30,76],LD:[86,55],LE:[14,55],VOL:[50,60],MC:[34,48],MEI:[66,48],CA1:[58,18],CA2:[42,18]},
+"3-4-3":{GOL:[50,92],ZAG1:[68,76],ZAG2:[50,79],ZAG3:[32,76],LD:[86,57],LE:[14,57],MC1:[62,50],MC2:[38,50],PD:[82,25],CA:[50,15],PE:[18,25]}
+};
+function initials(name){return name.split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase()}
+function renderPitch(){const scheme=state.scheme[state.team],lu=state.lineups[state.team],pos=fieldPos[scheme]||extraFieldPos[scheme];$('pitchTitle').textContent='Time '+state.team+' • '+scheme;let html='';slots().forEach(x=>{const xy=pos[x[0]]||[50,50],name=lu[x[0]],p=name?players.find(z=>z.name===name):null;html+=`<div class="pnode ${name?'':'pitch-empty'}" style="left:${xy[0]}%;top:${xy[1]}%" data-slot="${x[0]}"><div class="pavatar">${p&&p.photo?`<img src="${esc(p.photo)}" alt="${esc(p.name)}">`:initials(name||x[1])}</div><div class="pname">${name?esc(name):'＋ Selecionar'}</div><div class="ppos">${esc(x[1])}</div></div>`});$('pitch').querySelectorAll('.pnode').forEach(x=>x.remove());$('pitch').insertAdjacentHTML('beforeend',html);$('pitch').querySelectorAll('.pnode').forEach(e=>e.onclick=()=>{const id=e.dataset.slot;if(lu[id]){delete lu[id];save();render()}else pickSlot(id)})}
+function render(){const escSec=$("escala");escSec.querySelectorAll(".slots,.selection-note,.selection-panel,.selection-list,.player-selection-list").forEach(el=>el.remove());document.querySelectorAll(".teams button").forEach(b=>b.classList.toggle("active",+b.dataset.t===state.team));document.querySelectorAll(".scheme button").forEach(b=>b.classList.toggle("active",b.dataset.s===state.scheme[state.team]));renderPitch()}
+document.querySelectorAll(".teams button").forEach(b=>b.onclick=()=>{state.team=+b.dataset.t;state.slot=null;render()});
+document.querySelectorAll(".scheme button").forEach(b=>b.onclick=()=>{state.scheme[state.team]=b.dataset.s;state.lineups[state.team]={};state.slot=null;save();render()});
+$('modalClose').onclick=closePlayerModal;$('playerModal').onclick=e=>{if(e.target.id==='playerModal')closePlayerModal()};$('modalSearch').oninput=renderModalPlayers;document.addEventListener('keydown',e=>{if(e.key==='Escape')closePlayerModal()});$("save").onclick=()=>{save();alert("Escalações salvas.")};$("clear").onclick=()=>{if(confirm("Limpar os três times?")){state.lineups={1:{},2:{},3:{}};save();render()}};
+$('restoreRoster').onclick=()=>{
+  if(confirm("Restaurar o elenco original do oGol?\n\nTodos os jogadores excluídos voltarão a aparecer no elenco e poderão ser escalados novamente.")){
+    state.excluded=[];
+    save();
+    renderRoster();
+    alert("Elenco original restaurado.");
+  }
+};
+render();
+</script><script>function rosterSlotsForPlayer(p){
+  return slots().filter(x=>ok(p,x[1])).map(x=>x);
+}
+function openRoster(name){
+  const p=players.find(x=>x.name===name); if(!p)return;
+  $('rosterTitle').textContent=p.name;
+  $('rosterSub').textContent=p.group+' • '+p.age+' anos'+(p.value?' • '+p.value:'');
+  $('rosterOptions').innerHTML=
+    '<div class="roster-note">Gerenciamento do elenco</div>'+
+    '<div class="roster-note">A escalação deste jogador é feita somente pelo campinho, na seção <b>Escalação</b>.</div>'+
+    '<button id="rosterExclude" class="danger">🗑️ Excluir jogador do meu elenco</button>';
+  $('rosterExclude').onclick=()=>{
+    Object.keys(state.lineups).forEach(t=>Object.keys(state.lineups[t]).forEach(k=>{if(state.lineups[t][k]===p.name)delete state.lineups[t][k]}));
+    if(!state.excluded.includes(p.name))state.excluded.push(p.name);
+    save(); closeRoster(); render(); renderRoster();
+  };
+  $('rosterModal').classList.add('open');
+}
+function closeRoster(){$('rosterModal').classList.remove('open')}
+function renderRoster(){
+  const arr=activePlayers();
+  $('all').innerHTML=arr.map(p=>'<div class="player" data-roster="'+esc(p.name)+'"><b>'+esc(p.name)+'</b><span>'+esc(p.group)+' • '+p.age+' anos'+(p.value?' • '+esc(p.value):'')+'</span></div>').join('');
+  document.querySelectorAll('[data-roster]').forEach(e=>e.onclick=()=>openRoster(e.dataset.roster));
+}
+document.querySelector('[data-s="elenco"]').onclick=()=>{closePlayerModal();closeRoster();document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById('elenco').classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));document.querySelector('[data-s="elenco"]').classList.add('active');renderRoster()};
+document.querySelector('[data-s="escala"]').onclick=()=>{closeRoster();closePlayerModal();document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById('escala').classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));document.querySelector('[data-s="escala"]').classList.add('active')};
+$('rosterClose').onclick=closeRoster;$('rosterModal').onclick=e=>{if(e.target.id==='rosterModal')closeRoster()};</script></body></html>
